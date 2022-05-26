@@ -1,7 +1,7 @@
 # CGP-DD
 Use Cartesian Genetic Programming(CGP) to search effective neural network architecture for image restoration task, typically for unlearned neural network (etc. Deep image prior, Deep decoder)
 
-Code adpated from https://github.com/sg-nm/cgp-cnn-PyTorch[1]
+Code adpated from https://github.com/sg-nm/cgp-cnn-PyTorch [1]
 
 ---
 Version 0 (Updated at May 26th.)
