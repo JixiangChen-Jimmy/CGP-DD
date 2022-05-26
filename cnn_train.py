@@ -182,7 +182,7 @@ class CNN_train():
             img_noisy_np, img_noisy_var = get_noisy_img(img_np, sig=30, noise_same=False)
 
             model = CGP2CNN(cgp, 32, self.imgSize // (2 ** upsample_num))
-            init_weights(model, 'kaiming')
+            # init_weights(model, 'kaiming')
             model.cuda(gpuID)
 
             # Calculate number of parameters in NN
@@ -196,6 +196,7 @@ class CNN_train():
             net_input = Variable(torch.zeros(shape))
             net_input.data.uniform_()
             net_input.data *= 1. / 10
+
             # Set optimizer and loss type
             optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
             mse = torch.nn.MSELoss()
@@ -238,9 +239,10 @@ class CNN_train():
                     loss_clear_array.append(true_loss)
 
                     # 每1000次迭代print一次lss
-                    if i % 100 == 0:
+                    if i % 10 == 0:
                         print('Iteration %05d    Train loss %f  Actual loss %f' % (
                             i, loss.data, true_loss.data), '\n', end='')
+                        print(f'psnr = {psnr_clear_array[-1]}')
                     return loss
 
                 loss = optimizer.step(closure)

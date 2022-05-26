@@ -338,7 +338,7 @@ class CGP(object):
                 else:
                     self.pop[0].neutral_mutation(mutation_rate)  # modify the parent (neutral mutation)
 
-                print(f'Current best genotype result : {self.pop[0].eval}')
+                print(f'Generation : {self.num_gen}, Current best genotype result : {self.pop[0].eval}')
 
                 # display and save log
                 print(self._log_data(net_info_type='active_only', start_time=start_time))

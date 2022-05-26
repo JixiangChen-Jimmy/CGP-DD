@@ -79,11 +79,7 @@ class Concat(nn.Module):
 class Out(nn.Module):
     def __init__(self, channel_num):
         super(Out, self).__init__()
-        self.out = nn.Sequential(nn.Conv2d(in_channels=channel_num, out_channels=channel_num, kernel_size=1),
-                                 nn.ReLU(),
-                                 nn.BatchNorm2d(channel_num),
-                                 nn.Conv2d(in_channels=channel_num, out_channels=3, kernel_size=1),
-                                 nn.ReLU(),
+        self.out = nn.Sequential(nn.Conv2d(in_channels=channel_num, out_channels=3, kernel_size=1),
                                  nn.Sigmoid()
                                  )
 
