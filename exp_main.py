@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+Code adpated from https://github.com/sg-nm/cgp-cnn-PyTorch
+
+@inproceedings{10.1145/3071178.3071229,
+author = {Suganuma, Masanori and Shirakawa, Shinichi and Nagao, Tomoharu},
+title = {A Genetic Programming Approach to Designing Convolutional Neural Network Architectures},
+year = {2017},
+isbn = {9781450349208},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3071178.3071229},
+doi = {10.1145/3071178.3071229},
+booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference},
+pages = {497–504},
+numpages = {8},
+keywords = {deep learning, genetic programming, convolutional neural network, designing neural network architectures},
+location = {Berlin, Germany},
+series = {GECCO '17}
+}
+'''
+
 import argparse
 import pickle
 # import pandas as pd

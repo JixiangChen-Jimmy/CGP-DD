@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-import math
+'''
+Code adpated from https://github.com/reinhardh/supplement_deep_decoder
+
+@article{heckel_deep_2018,
+    author    = {Reinhard Heckel and Paul Hand},
+    title     = {Deep Decoder: Concise Image Representations from Untrained Non-convolutional Networks},
+    journal   = {International Conference on Learning Representations},
+    year      = {2019}
+}
+'''
+
 import numpy as np
 import torch
-import torch.nn as nn
 from torch.nn import init
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
@@ -149,10 +157,6 @@ def psnr(x_hat,x_true,maxv=1.):
 # __call__: training the CNN defined by CGP list
 class CNN_train():
     def __init__(self, dataset_path, verbose=True, epoch_num = 500, imgSize=32):
-        # dataset_name: name of data set ('bsds'(color) or 'bsds_gray')
-        # validation: [True]  model train/validation mode
-        #             [False] model test mode for final evaluation of the evolved model
-        #                     (raining data : all training data, test data : all test data)
         # verbose: flag of display
         self.verbose = verbose
         self.imgSize = imgSize
