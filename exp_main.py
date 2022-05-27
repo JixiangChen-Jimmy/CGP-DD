@@ -51,7 +51,7 @@ if __name__ == '__main__':
             pickle.dump(network_info, f)
         # Evaluation function for CGP (testing unlearned NN and return average PSNR)
         imgSize = 256
-        eval_f = CNNEvaluation(gpu_num=args.gpu_num, dataset_path='./img', verbose=True, epoch_num=3000, imgSize=imgSize)
+        eval_f = CNNEvaluation(gpu_num=args.gpu_num, dataset_path='./img', verbose=True, epoch_num=500, imgSize=imgSize)
 
         # Execute evolution
         cgp = CGP(network_info, eval_f, lam=args.lam, imgSize=imgSize, init=args.init)

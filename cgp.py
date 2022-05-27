@@ -333,7 +333,7 @@ class CGP(object):
                     writer_f.writerow(self._log_data_children(net_info_type='active_only', start_time=start_time, pop=self.pop[c]))
                 f.close()
                 # replace the parent by the best individual
-                if evaluations[best_arg] > c:
+                if evaluations[best_arg] > self.pop[0].eval:
                     self.pop[0].copy(self.pop[best_arg + 1])
                 else:
                     self.pop[0].neutral_mutation(mutation_rate)  # modify the parent (neutral mutation)

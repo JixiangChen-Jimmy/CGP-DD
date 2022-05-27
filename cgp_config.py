@@ -67,9 +67,9 @@ class CgpInfoConvSet(object):
         # “U_” means that the layer has a convolution layer with upsampling
         # "Sum" means that the layer has a skip connection.
         # "Concat" means that the layer has a channel connection
-        self.func_type = ['U_DDBlock_64_1',  'U_DDBlock_64_3',  'U_DDBlock_64_5',
-                          'U_DDBlock_128_1', 'U_DDBlock_128_3', 'U_DDBlock_128_5',
-                          'U_DDBlock_256_1', 'U_DDBlock_256_3', 'U_DDBlock_256_5',
+        self.func_type = ['U_DDBlock_8_1',  'U_DDBlock_8_3',  'U_DDBlock_8_5',
+                          'U_DDBlock_16_1', 'U_DDBlock_16_3', 'U_DDBlock_16_5',
+                          'U_DDBlock_32_1', 'U_DDBlock_32_3', 'U_DDBlock_32_5',
                           'Concat','Sum']
                           
         self.func_in_num = [1, 1, 1,
