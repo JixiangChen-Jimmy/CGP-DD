@@ -21,83 +21,9 @@ import torch.utils.data
 from PIL import Image
 from torch.autograd import Variable
 import os
-import copy
+import matplotlib.pyplot as plt
 
 from cnn_model import CGP2CNN
-
-
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
-
-def weights_init_normal(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv2d') != -1:
-        m.apply(weights_init_normal_)
-    elif classname.find('Linear') != -1:
-        init.uniform(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm2d') != -1:
-        init.uniform(m.weight.data, 1.0, 0.02)
-        init.constant(m.bias.data, 0.0)
-
-def weights_init_normal_(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        init.uniform(m.weight.data, 0.0, 0.02)
-    elif classname.find('Linear') != -1:
-        init.uniform(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm2d') != -1:
-        init.uniform(m.weight.data, 1.0, 0.02)
-        init.constant(m.bias.data, 0.0)
-
-def weights_init_xavier(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        init.xavier_normal(m.weight.data, gain=1)
-    elif classname.find('Linear') != -1:
-        init.xavier_normal(m.weight.data, gain=1)
-    elif classname.find('BatchNorm2d') != -1:
-        init.uniform(m.weight.data, 1.0, 0.02)
-        init.constant(m.bias.data, 0.0)
-
-def weights_init_kaiming(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv2d') != -1:
-        init.kaiming_normal(m.weight.data, a=0, mode='fan_in')
-    elif classname.find('Linear') != -1:
-        init.kaiming_normal(m.weight.data, a=0, mode='fan_in')
-    elif classname.find('BatchNorm2d') != -1:
-        init.uniform(m.weight.data, 1.0, 0.02)
-        init.constant(m.bias.data, 0.0)
-
-def weights_init_orthogonal(m):
-    classname = m.__class__.__name__
-    print(classname)
-    if classname.find('Conv') != -1:
-        init.orthogonal(m.weight.data, gain=1)
-    elif classname.find('Linear') != -1:
-        init.orthogonal(m.weight.data, gain=1)
-    elif classname.find('BatchNorm2d') != -1:
-        init.uniform(m.weight.data, 1.0, 0.02)
-        init.constant(m.bias.data, 0.0)
-
-def init_weights(net, init_type='normal'):
-    print('initialization method [%s]' % init_type)
-    if init_type == 'normal':
-        net.apply(weights_init_normal)
-    elif init_type == 'xavier':
-        net.apply(weights_init_xavier)
-    elif init_type == 'kaiming':
-        net.apply(weights_init_kaiming)
-    elif init_type == 'orthogonal':
-        net.apply(weights_init_orthogonal)
-    else:
-        raise NotImplementedError('initialization method [%s] is not implemented' % init_type)
-
 
 def pil_to_np(img_PIL):
     '''Converts image in PIL format to np.array.
@@ -153,6 +79,48 @@ def psnr(x_hat,x_true,maxv=1.):
     psnr_ = 10.*np.log(maxv**2/mse)/np.log(10.)
     return psnr_
 
+def plotfig(array1, array2,typep,img_name, param):
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(13, 6))
+
+    array1 = np.array(array1)
+    array2 = np.array(array2)
+
+    x = np.arange(len(array1))
+
+    axes[0].plot(x, array1, 'g', linewidth=2)
+    axes[0].set_ylabel('noisy', fontsize=17)
+
+    axes[1].plot(x, array2, 'g', linewidth=2, linestyle="--")
+    axes[1].set_ylabel('clean', fontsize=17)
+
+    plt.suptitle(f'{img_name}_{typep}_plot, param_{param}')
+    # plt.show()
+    fig.savefig(f'./test_result/{img_name}/{img_name}_{typep}_plot.png')
+
+def myimgshow(plt, img):
+    plt.imshow(np.clip(img.transpose(1, 2, 0), 0, 1))
+
+def plot_results(out_img_np, img_np, img_noisy_np, iteration,net_parameter, img_name):
+    fig = plt.figure(figsize=(15, 8))  # create a 5 x 5 figure
+
+    ax1 = fig.add_subplot(131)
+    myimgshow(ax1, img_np)
+    ax1.set_title('Original image')
+    ax1.axis('off')
+
+    ax2 = fig.add_subplot(132)
+    myimgshow(ax2, img_noisy_np)
+    ax2.set_title("Noisy observation, PSNR: %.2f" % psnr(img_np, img_noisy_np))
+    ax2.axis('off')
+
+    ax3 = fig.add_subplot(133)
+    myimgshow(ax3, out_img_np)
+    ax3.set_title("DD denoised image, PSNR: %.2f" % psnr(img_np, out_img_np))
+    ax3.axis('off')
+    fig.suptitle(f'{img_name} compare result, epoch= {iteration}, param= {net_parameter}')
+    # plt.show()
+    fig.savefig(f'./test_result/{img_name}/{img_name}_visulization_results.png')
+
 # __init__: load dataset
 # __call__: training the CNN defined by CGP list
 class CNN_train():
@@ -164,7 +132,7 @@ class CNN_train():
         self.dataset_path = dataset_path
         self.imgList = os.listdir(self.dataset_path)
 
-    def __call__(self, cgp, upsample_num, gpuID, find_best= True, test= False):
+    def __call__(self, cgp, upsample_num, gpuID, test= False):
         if self.verbose:
             print('GPUID     :', gpuID)
             print('epoch_num :', self.epoch_num)
@@ -176,6 +144,8 @@ class CNN_train():
         img_psnr_list = []
         for img in self.imgList:
             img_path = self.dataset_path + '/' +img
+            img_name_split = img.split('.')
+            img_name = img_name_split[0]
             img_pil = Image.open(img_path)
             img_np = pil_to_np(img_pil)
             img_clean_var = np_to_var(img_np).type(torch.cuda.FloatTensor)
@@ -206,10 +176,6 @@ class CNN_train():
 
             loss_noisy_array = []  # 储存每一代的out与噪声图像的loss
             loss_clear_array = []  # 储存每一代的out与真实图像的loss
-
-            if find_best:
-                best_net = copy.deepcopy(model)
-                best_mse = 1000000.0
 
             for i in range(self.epoch_num):
 
@@ -246,17 +212,20 @@ class CNN_train():
                     return loss
 
                 loss = optimizer.step(closure)
-                if find_best:
-                    # if training loss improves by at least one percent, we found a new best net
-                    if best_mse > 1.005 * loss.data:
-                        best_mse = loss.data
-                        best_psnr_clean = psnr_clear_array[-1]
             if test:
-                # For retrain/test the network
-                # Remain to be done
-                pass
+                if not os.path.exists('./test_result'):
+                    os.makedirs('./test_result')
+                if not os.path.exists(f'./test_result/{img_name}'):
+                    os.makedirs(f'./test_result/{img_name}')
+                # Test a searched network, set the input mode as 'test' to activate this
+                # Draw the clean image, noisy image, recovered image
+                # Plot the loss funciton curve, psnr curve
+                plotfig(psnr_noisy_array, psnr_clear_array, 'psnr', img_name, s)
+                plotfig(loss_noisy_array, loss_clear_array, 'loss', img_name, s)
+                out_img_np = model(net_input.type(torch.cuda.FloatTensor)).data.cpu().numpy()[0]
+                plot_results(out_img_np, img_np, img_noisy_np, self.epoch_num, s, img_name)
+            img_psnr_list.append(psnr_clear_array[-1])
 
-            img_psnr_list.append(best_psnr_clean)
         print('psnr list')
         print(img_psnr_list)
         return np.mean(img_psnr_list)

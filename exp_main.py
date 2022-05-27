@@ -24,7 +24,7 @@ series = {GECCO '17}
 
 import argparse
 import pickle
-# import pandas as pd
+import pandas as pd
 
 from cgp import *
 from cgp_config import *
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--lam', '-l', type=int, default=2, help='Num. of offsprings')
     parser.add_argument('--net_info_file', default='network_info.pickle', help='Network information file name')
     parser.add_argument('--log_file', default='./log_cgp.txt', help='Log file name')
-    parser.add_argument('--mode', '-m', default='evolution', help='Mode (evolution / retrain / reevolution)')
+    parser.add_argument('--mode', '-m', default='test', help='Mode (evolution / test)')
     parser.add_argument('--init', '-i', action='store_true')
     args = parser.parse_args()
 
@@ -56,4 +56,19 @@ if __name__ == '__main__':
         # Execute evolution
         cgp = CGP(network_info, eval_f, lam=args.lam, imgSize=imgSize, init=args.init)
         cgp.modified_evolution(max_eval=250, mutation_rate=0.1, log_file=args.log_file)
+
+    # --- Test evolved architecture ---
+    elif args.mode == 'test':
+        print('Test')
+        # In the case of existing log_cgp.txt
+        # Load CGP configuration
+        with open(args.net_info_file, mode='rb') as f:
+            network_info = pickle.load(f)
+        # Load network architecture
+        cgp = CGP(network_info, None)
+        data = pd.read_csv(args.log_file, header=None)  # Load log file
+        cgp.load_log(list(data.tail(1).values.flatten().astype(int)))  # Read the log at final generation
+        print(cgp._log_data(net_info_type='active_only', start_time=0))
+        Search_model = CNN_train(dataset_path= './img', epoch_num= 500, imgSize= 256)
+        average_psnr = Search_model(cgp.pop[0].active_net_list(), cgp.pop[0].check_upsample(), 0, test= True)
 
